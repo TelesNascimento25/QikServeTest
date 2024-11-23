@@ -3,6 +3,7 @@ package com.qikserve.checkout.service;
 import com.qikserve.checkout.model.*;
 import com.qikserve.checkout.repository.ProductRepository;
 import com.qikserve.checkout.model.dto.CheckoutResponse;
+import com.qikserve.checkout.repository.WiremockProductRepository;
 import com.qikserve.checkout.service.factory.PromotionStrategyFactory;
 import com.qikserve.checkout.service.promotion.PromotionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,11 @@ import java.math.BigDecimal;
 public class CheckoutServiceImpl implements CheckoutService {
 
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
     private PromotionStrategyFactory promotionStrategyFactory;
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private WiremockProductRepository productRepository;
 
     @Override
     public CheckoutResponse calculateTotal(Basket basket) {
@@ -32,12 +33,11 @@ public class CheckoutServiceImpl implements CheckoutService {
             String productId = basketItem.getProductId();
             int quantity = basketItem.getQuantity();
 
-            Product product = productRepository.findById(productId)
-                                               .orElseThrow(() -> new IllegalArgumentException(messageSource.getMessage("error.productNotFound",
-                                                       new Object[]{productId},
-                                                       LocaleContextHolder.getLocale())));
-
-            BigDecimal finalPrice = BigDecimal.valueOf(product.getPrice())
+            Product product = productRepository.findById(productId);
+            if (product == null){ throw new IllegalArgumentException(messageSource.getMessage("error.productNotFound",
+                    new Object[]{productId},LocaleContextHolder.getLocale()));
+            }
+                BigDecimal finalPrice = BigDecimal.valueOf(product.getPrice())
                                               .divide(BigDecimal.valueOf(100))
                                               .multiply(BigDecimal.valueOf(quantity));
 
