@@ -1,7 +1,9 @@
 package com.qikserve.checkout.service;
 
 import com.qikserve.checkout.model.*;
-import com.qikserve.checkout.repository.ProductRepository;
+import com.qikserve.checkout.model.dto.CheckoutMessages;
+import com.qikserve.checkout.model.dto.Product;
+import com.qikserve.checkout.model.dto.Promotion;
 import com.qikserve.checkout.model.dto.CheckoutResponse;
 import com.qikserve.checkout.repository.WiremockProductRepository;
 import com.qikserve.checkout.service.factory.PromotionStrategyFactory;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 

@@ -9,7 +9,7 @@ forward from wiremock
 GET /products
 
 GET /products/:id
-
+product provider que a implementação será o wireMock
 # BasketController
 
 GET /baskets/?status=ACTIVE&FINISHED
@@ -72,7 +72,6 @@ DELETE /baskets/:id
 
 POST /baskets/:id/clear
 -- remove all items from basket, effectively deleting items from database
-
 POST /baskets/:id/cancel
 GET /baskets/:id/savings
 // compute savings for basket, available only for ACTIVE baskets

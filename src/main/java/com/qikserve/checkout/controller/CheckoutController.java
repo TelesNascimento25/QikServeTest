@@ -1,7 +1,7 @@
 package com.qikserve.checkout.controller;
 
 import com.qikserve.checkout.model.Basket;
-import com.qikserve.checkout.model.CheckoutMessages;
+import com.qikserve.checkout.model.dto.CheckoutMessages;
 import com.qikserve.checkout.model.dto.CheckoutResponse;
 import com.qikserve.checkout.service.CheckoutService;
 import org.springframework.beans.factory.annotation.Autowired;

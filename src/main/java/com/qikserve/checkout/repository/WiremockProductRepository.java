@@ -1,6 +1,6 @@
 package com.qikserve.checkout.repository;
 
-import com.qikserve.checkout.model.Product;
+import com.qikserve.checkout.model.dto.Product;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;

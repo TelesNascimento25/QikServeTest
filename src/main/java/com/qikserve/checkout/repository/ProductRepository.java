@@ -1,7 +1,6 @@
 package com.qikserve.checkout.repository;
 
-import com.qikserve.checkout.model.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.qikserve.checkout.model.dto.Product;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

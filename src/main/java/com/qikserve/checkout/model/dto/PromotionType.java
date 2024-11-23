@@ -1,4 +1,4 @@
-package com.qikserve.checkout.model;
+package com.qikserve.checkout.model.dto;
 
 public enum PromotionType {
     BUY_X_GET_Y_FREE,

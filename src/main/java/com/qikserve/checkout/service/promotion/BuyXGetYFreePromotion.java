@@ -1,8 +1,8 @@
 package com.qikserve.checkout.service.promotion;
 
-import com.qikserve.checkout.model.Product;
-import com.qikserve.checkout.model.Promotion;
-import com.qikserve.checkout.model.PromotionType;
+import com.qikserve.checkout.model.dto.Product;
+import com.qikserve.checkout.model.dto.Promotion;
+import com.qikserve.checkout.model.dto.PromotionType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

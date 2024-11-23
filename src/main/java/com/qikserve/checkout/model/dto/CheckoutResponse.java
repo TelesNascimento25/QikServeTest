@@ -1,7 +1,5 @@
 package com.qikserve.checkout.model.dto;
 
-import com.qikserve.checkout.model.CheckoutMessages;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 

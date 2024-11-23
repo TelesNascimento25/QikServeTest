@@ -1,10 +1,7 @@
 package com.qikserve.checkout.service.factory;
 
-import com.qikserve.checkout.model.PromotionType;
-import com.qikserve.checkout.service.promotion.BuyXGetYFreePromotion;
-import com.qikserve.checkout.service.promotion.FlatPercentPromotion;
+import com.qikserve.checkout.model.dto.PromotionType;
 import com.qikserve.checkout.service.promotion.PromotionStrategy;
-import com.qikserve.checkout.service.promotion.QtyBasedPriceOverridePromotion;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

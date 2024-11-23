@@ -1,4 +1,4 @@
-package com.qikserve.checkout.model;
+package com.qikserve.checkout.model.dto;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
