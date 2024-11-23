@@ -9,7 +9,6 @@ forward from wiremock
 GET /products
 
 GET /products/:id
-
 # BasketController
 
 GET /baskets/?status=ACTIVE&FINISHED
@@ -67,19 +66,19 @@ GET /baskets/:id
 if FINISHED, display total
 
 
-DELETE /baskets/:id
--- change internal status to DELETED
+[//]: # (DELETE /baskets/:id)
+
+[//]: # (-- change internal status to DELETED)
 
 POST /baskets/:id/clear
 -- remove all items from basket, effectively deleting items from database
-
 POST /baskets/:id/cancel
 GET /baskets/:id/savings
 // compute savings for basket, available only for ACTIVE baskets
 {
     "savings": 12.34
 }
-POST /baskets/:id/finish // -> status: FINISHED == PAYED, here we can apply promotions
+POST /baskets/:id/checkout // -> status: FINISHED == PAYED, here we can apply promotions
 
 Basket
 {
@@ -146,7 +145,7 @@ GET /basketItems/:id
     ]
 }
 
-POST /basketItems/:id
+PATCH /basketItems/:id
 {
     "quantity": 3 // > 0
 }
@@ -155,6 +154,7 @@ DELETE /basketItems/:id
 // delete for real
 
 POST /basketItems
+// only for active baskets
 {
     "basketId": "123",
     "productId": "1",

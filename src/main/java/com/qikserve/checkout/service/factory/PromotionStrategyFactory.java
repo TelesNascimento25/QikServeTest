@@ -1,27 +1,56 @@
 package com.qikserve.checkout.service.factory;
 
-import com.qikserve.checkout.model.PromotionType;
-import com.qikserve.checkout.service.promotion.BuyXGetYFreePromotion;
-import com.qikserve.checkout.service.promotion.FlatPercentPromotion;
+import com.qikserve.checkout.model.dto.BuyXGetYFree;
+import com.qikserve.checkout.model.dto.FlatPercent;
+import com.qikserve.checkout.model.dto.Product;
+import com.qikserve.checkout.model.dto.Promotion;
+import com.qikserve.checkout.model.dto.QtyBasedPriceOverride;
+import com.qikserve.checkout.service.promotion.BuyXGetYFreeStrategy;
+import com.qikserve.checkout.service.promotion.FlatPercentStrategy;
 import com.qikserve.checkout.service.promotion.PromotionStrategy;
-import com.qikserve.checkout.service.promotion.QtyBasedPriceOverridePromotion;
-import org.springframework.stereotype.Component;
+import com.qikserve.checkout.service.promotion.QtyBasedPriceOverrideStrategy;
+import com.qikserve.checkout.util.PenceUtils;
+import lombok.Builder;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
-@Component
 public class PromotionStrategyFactory {
 
-    private final Map<PromotionType, PromotionStrategy> strategies;
-
-    public PromotionStrategyFactory(List<PromotionStrategy> strategies) {
-        this.strategies = strategies.stream()
-                .collect(Collectors.toMap(PromotionStrategy::getPromotionType, s -> s));
+    public static PromotionStrategy getPromotionStrategy(Promotion promotion) {
+        return switch (promotion.getType()) {
+            case BUY_X_GET_Y_FREE -> new BuyXGetYFreeStrategy((BuyXGetYFree) promotion);
+            case FLAT_PERCENT -> new FlatPercentStrategy((FlatPercent) promotion);
+            case QTY_BASED_PRICE_OVERRIDE -> new QtyBasedPriceOverrideStrategy((QtyBasedPriceOverride) promotion);
+        };
     }
 
-    public PromotionStrategy getStrategy(PromotionType promotionType) {
-        return strategies.get(promotionType);
+    private static BigDecimal applyPromotion(Operand operand) {
+        return getPromotionStrategy(operand.promotion())
+                .applyPromotion(
+                        operand.quantity(),
+                        operand.priceInPence());
+    }
+
+    public static BigDecimal applyPromotions(Product product, int quantity) {
+        var promotions = product.getPromotions();
+        if (CollectionUtils.isEmpty(promotions)) {
+            return PenceUtils.computeTotal(quantity, product.getPrice());
+        }
+        var builder = Operand.builder().quantity(quantity).priceInPence(product.getPrice());
+
+        return promotions.stream()
+            .map(builder::build)
+            .map(PromotionStrategyFactory::applyPromotion)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Builder
+    private record Operand(Promotion promotion, int quantity, int priceInPence) {
+        public static class OperandBuilder {
+            public Operand build(final Promotion promotion) {
+                return this.promotion(promotion).build();
+            }
+        }
     }
 }
