@@ -11,6 +11,11 @@ import java.math.BigDecimal;
 public class FlatPercentPromotion implements PromotionStrategy {
 
     @Override
+    public PromotionType getPromotionType() {
+        return PromotionType.FLAT_PERCENT;
+    }
+
+    @Override
     public BigDecimal applyPromotion(Product product, int quantity) {
         Promotion promotion = product.getPromotions().stream()
                 .filter(p -> PromotionType.FLAT_PERCENT.equals(p.getType()))
@@ -26,8 +31,4 @@ public class FlatPercentPromotion implements PromotionStrategy {
         return BigDecimal.ZERO;
     }
 
-    @Override
-    public PromotionType getPromotionType() {
-        return PromotionType.FLAT_PERCENT;
-    }
 }

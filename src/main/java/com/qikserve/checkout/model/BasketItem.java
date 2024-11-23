@@ -6,6 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "basket_item")
 @Data
+
 public class BasketItem {
 
     @Id

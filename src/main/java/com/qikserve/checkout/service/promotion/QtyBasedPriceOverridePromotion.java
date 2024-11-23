@@ -11,6 +11,11 @@ import java.math.BigDecimal;
 public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
 
     @Override
+    public PromotionType getPromotionType() {
+        return PromotionType.QTY_BASED_PRICE_OVERRIDE;
+    }
+
+    @Override
     public BigDecimal applyPromotion(Product product, int quantity) {
         Promotion promotion = product.getPromotions().stream()
                 .filter(p -> PromotionType.QTY_BASED_PRICE_OVERRIDE.equals(p.getType()))
@@ -35,8 +40,4 @@ public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
         return BigDecimal.ZERO;
     }
 
-    @Override
-    public PromotionType getPromotionType() {
-        return PromotionType.QTY_BASED_PRICE_OVERRIDE;
-    }
 }

@@ -11,6 +11,11 @@ import java.math.BigDecimal;
 public class BuyXGetYFreePromotion implements PromotionStrategy {
 
     @Override
+    public PromotionType getPromotionType() {
+        return PromotionType.BUY_X_GET_Y_FREE;
+    }
+
+    @Override
     public BigDecimal applyPromotion(Product product, int quantity) {
         Promotion promotion = product.getPromotions()
                 .stream()
@@ -29,8 +34,4 @@ public class BuyXGetYFreePromotion implements PromotionStrategy {
         return BigDecimal.ZERO;
     }
 
-    @Override
-    public PromotionType getPromotionType() {
-        return PromotionType.BUY_X_GET_Y_FREE;
-    }
 }
