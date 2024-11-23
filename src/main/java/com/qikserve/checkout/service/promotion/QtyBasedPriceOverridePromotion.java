@@ -22,7 +22,7 @@ public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
             int sets = quantity / promotion.getRequiredQty();
             int remaining = quantity % promotion.getRequiredQty();
 
-            return originalPrice.multiply(BigDecimal.valueOf(quantity)).subtract(promotionalPrice.multiply(BigDecimal.valueOf(sets * promotion.getRequiredQty()))).add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
+            return originalPrice.multiply(BigDecimal.valueOf(quantity)).subtract(promotionalPrice.multiply(BigDecimal.valueOf((long) sets * promotion.getRequiredQty()))).add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
 
         }
         return BigDecimal.ZERO;
