@@ -24,7 +24,6 @@ public class CheckoutServiceImpl implements CheckoutService {
     private MessageSource messageSource;
 
     @Override
-    @Transactional(readOnly = true)
     public CheckoutResponse calculateTotal(Basket basket) {
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal totalDiscount = BigDecimal.ZERO;
@@ -34,13 +33,13 @@ public class CheckoutServiceImpl implements CheckoutService {
             int quantity = basketItem.getQuantity();
 
             Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException(messageSource.getMessage("error.productNotFound",
-                            new Object[]{productId},
-                            LocaleContextHolder.getLocale())));
+                                               .orElseThrow(() -> new IllegalArgumentException(messageSource.getMessage("error.productNotFound",
+                                                       new Object[]{productId},
+                                                       LocaleContextHolder.getLocale())));
 
             BigDecimal finalPrice = BigDecimal.valueOf(product.getPrice())
-                    .divide(BigDecimal.valueOf(100))
-                    .multiply(BigDecimal.valueOf(quantity));
+                                              .divide(BigDecimal.valueOf(100))
+                                              .multiply(BigDecimal.valueOf(quantity));
 
             if (!product.getPromotions().isEmpty()) {
                 for (Promotion promotion : product.getPromotions()) {
