@@ -2,10 +2,12 @@ package com.qikserve.checkout.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "promotion")
 @Data
+@ToString(exclude = {"promotions"})
 public class Promotion {
 
     @Id
@@ -19,10 +21,10 @@ public class Promotion {
     @Column(nullable = false)
     private String type;
 
-    private int requiredQty;
-    private int freeQty;
-    private int price;
-    private int amount;
+    private Integer requiredQty;
+    private Integer freeQty;
+    private Integer price;
+    private Integer amount;
 
 
 }

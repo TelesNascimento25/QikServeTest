@@ -17,14 +17,19 @@ public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
                 .orElse(null);
 
         if (promotion != null && quantity >= promotion.getRequiredQty()) {
+            int requiredQty = promotion.getRequiredQty();
             BigDecimal originalPrice = BigDecimal.valueOf(product.getPrice()).divide(BigDecimal.valueOf(100));
             BigDecimal promotionalPrice = BigDecimal.valueOf(promotion.getPrice()).divide(BigDecimal.valueOf(100));
-            int sets = quantity / promotion.getRequiredQty();
-            int remaining = quantity % promotion.getRequiredQty();
 
-            return originalPrice.multiply(BigDecimal.valueOf(quantity)).subtract(promotionalPrice.multiply(BigDecimal.valueOf((long) sets * promotion.getRequiredQty()))).add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
+            int sets = quantity / requiredQty;
+            int remaining = quantity % requiredQty;
 
+            BigDecimal priceWithDiscount = promotionalPrice.multiply(BigDecimal.valueOf(sets)).add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
+            BigDecimal originalPriceTotal = originalPrice.multiply(BigDecimal.valueOf(quantity));
+
+            return originalPriceTotal.subtract(priceWithDiscount);
         }
+
         return BigDecimal.ZERO;
     }
 }
