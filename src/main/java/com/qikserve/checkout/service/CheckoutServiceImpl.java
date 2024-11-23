@@ -2,7 +2,7 @@ package com.qikserve.checkout.service;
 
 import com.qikserve.checkout.model.*;
 import com.qikserve.checkout.repository.ProductRepository;
-import com.qikserve.checkout.service.dto.CheckoutResponse;
+import com.qikserve.checkout.model.dto.CheckoutResponse;
 import com.qikserve.checkout.service.factory.PromotionStrategyFactory;
 import com.qikserve.checkout.service.promotion.PromotionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;

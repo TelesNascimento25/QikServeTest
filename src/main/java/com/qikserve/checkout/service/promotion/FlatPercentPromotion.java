@@ -2,6 +2,7 @@ package com.qikserve.checkout.service.promotion;
 
 import com.qikserve.checkout.model.Product;
 import com.qikserve.checkout.model.Promotion;
+import com.qikserve.checkout.model.PromotionType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class FlatPercentPromotion implements PromotionStrategy {
     @Override
     public BigDecimal applyPromotion(Product product, int quantity) {
         Promotion promotion = product.getPromotions().stream()
-                .filter(p -> "FLAT_PERCENT".equals(p.getType()))
+                .filter(p -> PromotionType.FLAT_PERCENT.equals(p.getType()))
                 .findFirst()
                 .orElse(null);
 
@@ -21,6 +22,12 @@ public class FlatPercentPromotion implements PromotionStrategy {
             BigDecimal totalPrice = originalPrice.multiply(BigDecimal.valueOf(quantity));
             return totalPrice.multiply(BigDecimal.valueOf(promotion.getAmount()).divide(BigDecimal.valueOf(100)));
         }
+
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public PromotionType getPromotionType() {
+        return PromotionType.FLAT_PERCENT;
     }
 }

@@ -1,8 +1,12 @@
 package com.qikserve.checkout.controller;
 
 import com.qikserve.checkout.model.Basket;
+import com.qikserve.checkout.model.CheckoutMessages;
+import com.qikserve.checkout.model.dto.CheckoutResponse;
 import com.qikserve.checkout.service.CheckoutService;
-import com.qikserve.checkout.service.dto.CheckoutResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,22 +18,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class CheckoutController {
 
-    private final CheckoutService checkoutService;
+  @Autowired private CheckoutService checkoutService;
+  @Autowired private MessageSource messageSource;
 
-    public CheckoutController(CheckoutService checkoutService) {
-        this.checkoutService = checkoutService;
+  @PostMapping("/checkout")
+  public ResponseEntity<CheckoutResponse> calculateTotal(@RequestBody Basket basket) {
+
+    try {
+      CheckoutResponse response = checkoutService.calculateTotal(basket);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException ex) {
+      String errorMessage = messageSource.getMessage("error.productNotFound", new Object[]{ex.getMessage()}, LocaleContextHolder.getLocale());
+      return ResponseEntity.badRequest()
+                           .body(CheckoutResponse.builder()
+                                                 .messages(CheckoutMessages.builder().errorMessage(errorMessage).build())
+                                                 .build());
+
+    } catch (Exception ex) {
+      String errorMessage = messageSource.getMessage("error.internalServerError", null, LocaleContextHolder.getLocale());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                           .body(CheckoutResponse.builder()
+                                                 .messages(CheckoutMessages.builder().errorMessage(errorMessage).build())
+                                                 .build());
+
     }
-
-    @PostMapping("/checkout")
-    public ResponseEntity<CheckoutResponse> calculateTotal(@RequestBody Basket basket) {
-        try {
-            CheckoutResponse response = checkoutService.calculateTotal(basket);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException ex) {
-
-            return ResponseEntity.badRequest().body(new CheckoutResponse(null, null, ex.getMessage()));
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CheckoutResponse(null, null, "Error calculating the total."));
-        }
-    }
+  }
 }

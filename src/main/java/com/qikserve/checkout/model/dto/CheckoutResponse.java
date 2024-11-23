@@ -1,4 +1,4 @@
-package com.qikserve.checkout.service.dto;
+package com.qikserve.checkout.model.dto;
 
 import com.qikserve.checkout.model.CheckoutMessages;
 import lombok.AllArgsConstructor;

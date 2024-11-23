@@ -1,13 +1,17 @@
 package com.qikserve.checkout.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "promotion")
+@Builder
 @Data
-@ToString(exclude = {"promotions"})
+@NoArgsConstructor
+@AllArgsConstructor
 public class Promotion {
 
     @Id
@@ -18,8 +22,9 @@ public class Promotion {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type;
+    private PromotionType type;
 
     private Integer requiredQty;
     private Integer freeQty;

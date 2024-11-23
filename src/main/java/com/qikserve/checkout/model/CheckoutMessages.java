@@ -3,9 +3,10 @@ package com.qikserve.checkout.model;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
+@Data
 public class CheckoutMessages {
     private String totalMessage;
     private String totalSavingsMessage;
+    private String errorMessage;
 }

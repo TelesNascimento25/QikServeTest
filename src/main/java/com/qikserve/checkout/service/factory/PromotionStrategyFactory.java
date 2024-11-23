@@ -1,5 +1,6 @@
 package com.qikserve.checkout.service.factory;
 
+import com.qikserve.checkout.model.PromotionType;
 import com.qikserve.checkout.service.promotion.BuyXGetYFreePromotion;
 import com.qikserve.checkout.service.promotion.FlatPercentPromotion;
 import com.qikserve.checkout.service.promotion.PromotionStrategy;
@@ -13,19 +14,14 @@ import java.util.stream.Collectors;
 @Component
 public class PromotionStrategyFactory {
 
-    private final Map<String, PromotionStrategy> strategies;
+    private final Map<PromotionType, PromotionStrategy> strategies;
 
     public PromotionStrategyFactory(List<PromotionStrategy> strategies) {
         this.strategies = strategies.stream()
-                .collect(Collectors.toMap(strategy -> {
-                    if (strategy instanceof BuyXGetYFreePromotion) return "BUY_X_GET_Y_FREE";
-                    if (strategy instanceof QtyBasedPriceOverridePromotion) return "QTY_BASED_PRICE_OVERRIDE";
-                    if (strategy instanceof FlatPercentPromotion) return "FLAT_PERCENT";
-                    return null;
-                }, strategy -> strategy));
+                .collect(Collectors.toMap(PromotionStrategy::getPromotionType, s -> s));
     }
 
-    public PromotionStrategy getStrategy(String promotionType) {
+    public PromotionStrategy getStrategy(PromotionType promotionType) {
         return strategies.get(promotionType);
     }
 }

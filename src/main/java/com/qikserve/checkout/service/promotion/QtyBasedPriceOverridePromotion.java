@@ -2,6 +2,7 @@ package com.qikserve.checkout.service.promotion;
 
 import com.qikserve.checkout.model.Product;
 import com.qikserve.checkout.model.Promotion;
+import com.qikserve.checkout.model.PromotionType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
     @Override
     public BigDecimal applyPromotion(Product product, int quantity) {
         Promotion promotion = product.getPromotions().stream()
-                .filter(p -> "QTY_BASED_PRICE_OVERRIDE".equals(p.getType()))
+                .filter(p -> PromotionType.QTY_BASED_PRICE_OVERRIDE.equals(p.getType()))
                 .findFirst()
                 .orElse(null);
 
@@ -24,12 +25,18 @@ public class QtyBasedPriceOverridePromotion implements PromotionStrategy {
             int sets = quantity / requiredQty;
             int remaining = quantity % requiredQty;
 
-            BigDecimal priceWithDiscount = promotionalPrice.multiply(BigDecimal.valueOf(sets)).add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
+            BigDecimal priceWithDiscount = promotionalPrice.multiply(BigDecimal.valueOf(sets))
+                    .add(originalPrice.multiply(BigDecimal.valueOf(remaining)));
             BigDecimal originalPriceTotal = originalPrice.multiply(BigDecimal.valueOf(quantity));
 
             return originalPriceTotal.subtract(priceWithDiscount);
         }
 
         return BigDecimal.ZERO;
+    }
+
+    @Override
+    public PromotionType getPromotionType() {
+        return PromotionType.QTY_BASED_PRICE_OVERRIDE;
     }
 }
