@@ -15,7 +15,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class ProductsClientConfig {
 
     @Bean(name = "productsClient")
-    @Profile("wiremock-client")
+    @Profile({"wiremock-client", "test"})
     public WebClient wiremockClient() {
         var server = new WireMockServer(wireMockConfig()
                 .dynamicPort()

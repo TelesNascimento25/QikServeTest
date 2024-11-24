@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.nio.file.Path;
 
 
@@ -33,20 +35,24 @@ public class BasketController {
     }
 
     @PostMapping
-    public ResponseEntity<Basket> createBasket(HttpServletRequest request){
+    public ResponseEntity<Basket> createBasket(HttpServletRequest request, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
         var basket = basketService.createBasket();
-        return ResponseEntity.created(Path.of(
-                    request.getRequestURI(),
-                    basket.getId().toString()).toUri())
+        return ResponseEntity.created(URI.create(
+                    request.getRequestURI() + "/" +
+                    basket.getId().toString()))
                 .body(basket);
     }
 
     @PostMapping("/{basketId}/item")
-    public ResponseEntity<BasketItem> addBasketItem(@PathVariable Long basketId, @Valid @RequestBody BasketItem basketItem){
+    public ResponseEntity<BasketItem> addBasketItem(@PathVariable Long basketId, @Valid @RequestBody BasketItem basketItem, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
         var item = basketService.addBasketItem(basketId, basketItem);
-        return ResponseEntity.created(Path.of(
-                    "/basketItems",
-                    item.getId().toString()).toUri())
+        return ResponseEntity.created(URI.create( "/basketItems/" + item.getId().toString()))
                 .body(item);
     }
 

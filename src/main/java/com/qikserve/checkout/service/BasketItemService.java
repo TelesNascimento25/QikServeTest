@@ -25,7 +25,6 @@ public class BasketItemService {
     private final ProductRepository productRepository;
 
     private final BasketItemRepository basketItemRepository;
-    private final BasketService basketService;
 
     @Cacheable("promotionalPrice")
     public BigDecimal computePromotionalPrice(Collection<BasketItem> items) {
@@ -68,10 +67,6 @@ public class BasketItemService {
     public void deleteBasketItem(Long basketItemId) {
         this.getById(basketItemId);
         basketItemRepository.deleteById(basketItemId);
-    }
-
-    public BasketItem createBasketItem(BasketItem request) {
-        return basketService.addBasketItem(request.getBasketId(), request);
     }
 
     private BasketItem getById(Long id) {

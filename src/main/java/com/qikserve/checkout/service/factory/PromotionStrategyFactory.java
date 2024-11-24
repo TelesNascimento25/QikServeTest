@@ -11,7 +11,7 @@ import com.qikserve.checkout.service.promotion.PromotionStrategy;
 import com.qikserve.checkout.service.promotion.QtyBasedPriceOverrideStrategy;
 import com.qikserve.checkout.util.PenceUtils;
 import lombok.Builder;
-import org.apache.commons.collections.CollectionUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 
@@ -45,11 +45,11 @@ public class PromotionStrategyFactory {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    @Builder
+    @Builder(buildMethodName = "voila")
     private record Operand(Promotion promotion, int quantity, int priceInPence) {
         public static class OperandBuilder {
             public Operand build(final Promotion promotion) {
-                return this.promotion(promotion).build();
+                return this.promotion(promotion).voila();
             }
         }
     }
