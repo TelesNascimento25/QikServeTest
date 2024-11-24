@@ -1,6 +1,8 @@
 package com.qikserve.checkout.service;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.qikserve.checkout.exception.BasketNotFoundException;
+import com.qikserve.checkout.exception.BasketNotOpenException;
 import com.qikserve.checkout.model.Basket;
 import com.qikserve.checkout.model.BasketItem;
 import com.qikserve.checkout.model.BasketStatus;
@@ -10,6 +12,9 @@ import com.qikserve.checkout.repository.BasketRepository;
 import com.qikserve.checkout.util.PenceUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +28,7 @@ public class BasketService {
     private final BasketRepository basketRepository;
     private final BasketItemService basketItemService;
     private final BasketItemRepository basketItemRepository;
+    private final MessageSource messageSource;
 
     public Optional<Basket> getBasket(Long basketId) {
         return basketRepository.findById(basketId);
@@ -36,14 +42,15 @@ public class BasketService {
     }
 
     public BasketItem addBasketItem(Long basketId, @Valid BasketItem basketItem) {
-        if (basketItem.getQuantity() <= 0){
-            throw new IllegalArgumentException("Quantity must be bigger than zero.");
+        if (basketItem.getQuantity() <= 0) {
+            String errorMessage = messageSource.
+                    getMessage("error.quantityGreaterThanZero", null, LocaleContextHolder.getLocale());
+            throw new IllegalArgumentException(errorMessage);
         }
-
         var basketStatus = this.getBasketById(basketId, Basket::getStatus);
 
-        if (!BasketStatus.OPEN.equals(basketStatus)){
-            throw new IllegalArgumentException("Basket with id: " + basketId + " isn't Open");
+        if (!BasketStatus.OPEN.equals(basketStatus)) {
+            throw new BasketNotOpenException(basketId);
         }
 
         return basketItemRepository.save(BasketItem.builder()
@@ -51,6 +58,7 @@ public class BasketService {
                 .productId(basketItem.getProductId())
                 .quantity(basketItem.getQuantity())
                 .build());
+
     }
 
     public void cancelBasket(Long basketId) {
@@ -81,7 +89,7 @@ public class BasketService {
 
         var basket = basketRepository.fetchCheckoutItemsById(basketId).orElseThrow(RuntimeException::new);
         if (!BasketStatus.OPEN.equals(basket.getStatus())) {
-            throw new IllegalStateException("Basket is not Open and cannot be finished");
+            throw new BasketNotOpenException(basketId);
         }
 
         final var basketItems = basket.getBasketItems();
@@ -93,10 +101,10 @@ public class BasketService {
     }
 
 
-    private  <T> T getBasketById(Long id, Function<Basket, T> transformer) {
+    private <T> T getBasketById(Long id, Function<Basket, T> transformer) {
         return basketRepository.findById(id)
                 .map(transformer)
-                .orElseThrow(() -> new NotFoundException("Basket with id: " + id + " not found"));
+                .orElseThrow(() -> new BasketNotFoundException(id));
     }
 
     private Basket updateById(Long basketId, Consumer<Basket> consumer) {

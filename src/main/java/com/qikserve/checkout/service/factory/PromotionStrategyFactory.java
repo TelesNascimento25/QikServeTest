@@ -45,11 +45,11 @@ public class PromotionStrategyFactory {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    @Builder(buildMethodName = "voila")
+    @Builder(buildMethodName = "_build")
     private record Operand(Promotion promotion, int quantity, int priceInPence) {
         public static class OperandBuilder {
             public Operand build(final Promotion promotion) {
-                return this.promotion(promotion).voila();
+                return this.promotion(promotion)._build();
             }
         }
     }

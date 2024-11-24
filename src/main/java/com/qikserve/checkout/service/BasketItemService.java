@@ -1,6 +1,7 @@
 package com.qikserve.checkout.service;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.qikserve.checkout.exception.BasketItemNotFoundException;
 import com.qikserve.checkout.model.BasketItem;
 import com.qikserve.checkout.model.dto.Product;
 import com.qikserve.checkout.repository.BasketItemRepository;
@@ -8,7 +9,9 @@ import com.qikserve.checkout.repository.ProductRepository;
 import com.qikserve.checkout.service.factory.PromotionStrategyFactory;
 import com.qikserve.checkout.util.PenceUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +28,8 @@ public class BasketItemService {
     private final ProductRepository productRepository;
 
     private final BasketItemRepository basketItemRepository;
+
+    private final MessageSource messageSource;
 
     @Cacheable("promotionalPrice")
     public BigDecimal computePromotionalPrice(Collection<BasketItem> items) {
@@ -76,7 +81,7 @@ public class BasketItemService {
     private <T> T getById(Long id, Function<BasketItem, T> transformer) {
         return basketItemRepository.findById(id)
                 .map(transformer)
-                .orElseThrow(() -> new NotFoundException("Basket item with id: " + id + " not found"));
+                .orElseThrow(() -> new BasketItemNotFoundException(id));
     }
 
     private BasketItem updateById(Long id, Consumer<BasketItem> consumer) {

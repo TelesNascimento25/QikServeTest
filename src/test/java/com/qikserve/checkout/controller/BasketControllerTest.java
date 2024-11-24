@@ -1,35 +1,30 @@
 package com.qikserve.checkout.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qikserve.checkout.config.LocaleConfiguration;
 import com.qikserve.checkout.model.Basket;
+import com.qikserve.checkout.model.BasketItem;
 import com.qikserve.checkout.model.BasketStatus;
-import com.qikserve.checkout.model.dto.BuyXGetYFree;
-import com.qikserve.checkout.model.dto.FlatPercent;
-import com.qikserve.checkout.model.dto.Product;
-import com.qikserve.checkout.model.dto.QtyBasedPriceOverride;
 import com.qikserve.checkout.repository.BasketItemRepository;
 import com.qikserve.checkout.repository.BasketRepository;
 import com.qikserve.checkout.service.BasketItemService;
-import io.vavr.CheckedFunction0;
 import io.vavr.CheckedFunction1;
-import io.vavr.CheckedFunction2;
-import io.vavr.control.Try;
-import org.apache.commons.lang3.function.Functions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.ErrorResponse;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.when;
 
@@ -83,4 +78,27 @@ public class BasketControllerTest {
                 .expectStatus().isNotFound();
     }
 
+    // get message properties from i18n for 2 locales
+    @ParameterizedTest
+    @ValueSource(strings = {"en", "es"})
+    public void addBasketItem_WhenBasketIsNotOpen_ThenReturnBadRequest(String locale) throws Exception {
+        // Given
+        var basketId = 1L;
+        var basketItem = BasketItem.builder().basketId(basketId).productId("1").quantity(1).build();
+        var errorMessage = locale.equals("en") ? "The Basket with ID 1 is not open" : "El carrito con ID 1 no está abierto";
+
+        // When
+        when(basketRepository.findById(basketId)).thenReturn(Optional.of(Basket.builder().id(basketId).status(BasketStatus.CANCELLED).build()));
+
+        // Then
+        this.webTestClient.post().uri(CONTEXT_PATH + "/" + basketId + "/item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Accept-Language", locale)
+                .bodyValue(basketItem)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(ProblemDetail.class)
+                .value(s -> Assertions.assertEquals(errorMessage, s.getDetail()));
+    }
 }
