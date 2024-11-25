@@ -29,14 +29,14 @@ public class ProductControllerTest {
 
     private static final Set<Product> products = Set.of(
             Product.builder().id("Dwt5F7KAhi").name("Amazing Pizza!").price(1099)
-                .promotions(List.of(
-                    QtyBasedPriceOverride.builder().id("ibt3EEYczW").requiredQty(2).price(1799).build())).build(),
+                   .promotions(List.of(
+                    QtyBasedPriceOverride.builder().id("ibt3EEYczW").requiredQty(Integer.valueOf(2)).price(Integer.valueOf(1799)).build())).build(),
             Product.builder().id("PWWe3w1SDU").name("Amazing Burger!").price(999)
-                .promotions(List.of(
-                    BuyXGetYFree.builder().id("ZRAwbsO2qM").requiredQty(2).freeQty(1).build())).build(),
+                   .promotions(List.of(
+                    BuyXGetYFree.builder().id("ZRAwbsO2qM").requiredQty(Integer.valueOf(2)).freeQty(Integer.valueOf(1)).build())).build(),
             Product.builder().id("C8GDyLrHJb").name("Amazing Salad!").price(499)
-                .promotions(List.of(
-                    FlatPercent.builder().id("Gm1piPn7Fg").amount(10).build())).build(),
+                   .promotions(List.of(
+                    FlatPercent.builder().id("Gm1piPn7Fg").amount(Integer.valueOf(10)).build())).build(),
             Product.builder().id("4MB7UfpTQs").name("Boring Fries!").price(199).build()
     );
 

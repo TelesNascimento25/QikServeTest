@@ -5,9 +5,11 @@ import com.qikserve.checkout.config.LocaleConfiguration;
 import com.qikserve.checkout.model.Basket;
 import com.qikserve.checkout.model.BasketItem;
 import com.qikserve.checkout.model.BasketStatus;
+import com.qikserve.checkout.model.dto.Savings;
 import com.qikserve.checkout.repository.BasketItemRepository;
 import com.qikserve.checkout.repository.BasketRepository;
 import com.qikserve.checkout.service.BasketItemService;
+import com.qikserve.checkout.service.BasketService;
 import io.vavr.CheckedFunction1;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,9 +22,11 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.ErrorResponse;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -40,6 +44,8 @@ public class BasketControllerTest {
     private BasketItemService basketItemService;
     @MockitoBean
     private BasketItemRepository basketItemRepository;
+    @MockitoSpyBean
+    private BasketService basketService;
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final Function<Object, String> toStr = CheckedFunction1.of(mapper::writeValueAsString).unchecked();
@@ -49,7 +55,7 @@ public class BasketControllerTest {
     @Test
     public void getBasketById_WhenBasketExists_ThenReturnBasket() throws Exception {
         // Given
-        var basket = Basket.builder().id(1L).status(BasketStatus.OPEN).build();
+        var basket = Basket.builder().id(Long.valueOf(1L)).status(BasketStatus.OPEN).build();
 
         // When
         when(basketRepository.findById(basket.getId())).thenReturn(Optional.of(basket));
@@ -69,7 +75,7 @@ public class BasketControllerTest {
         var basketId = 1L;
 
         // When
-        when(basketRepository.findById(basketId)).thenReturn(Optional.empty());
+        when(basketRepository.findById(Long.valueOf(basketId))).thenReturn(Optional.empty());
 
         // Then
         this.webTestClient.get().uri(CONTEXT_PATH + "/" + basketId)
@@ -101,4 +107,108 @@ public class BasketControllerTest {
                 .expectBody(ProblemDetail.class)
                 .value(s -> Assertions.assertEquals(errorMessage, s.getDetail()));
     }
+
+    @Test
+    public void createBasket_WhenCreatingBasket_ThenReturnCreated() throws Exception {
+        // Given
+        var basket = Basket.builder().id(1L).status(BasketStatus.OPEN).build();
+        when(basketService.createBasket()).thenReturn(basket);
+
+        // When
+        var response = this.webTestClient.post().uri(CONTEXT_PATH)
+                                         .accept(MediaType.APPLICATION_JSON)
+                                         .exchange();
+
+        // Then
+        response.expectStatus().isCreated()
+                .expectHeader().location(CONTEXT_PATH + "/1");
+    }
+
+
+    @Test
+    public void addBasketItem_WhenAddingBasketItem_ThenReturnCreated() throws Exception {
+        // Given
+        var basketId = 1L;
+        var basketItem = BasketItem.builder().basketId(basketId).productId("1").quantity(1).build();
+        when(basketRepository.findById(basketId)).thenReturn(Optional.of(Basket.builder().id(basketId).status(BasketStatus.OPEN).build()));
+        when(basketService.addBasketItem(basketId, basketItem)).thenReturn(basketItem);
+
+        // When
+        var response = this.webTestClient.post().uri(CONTEXT_PATH + "/" + basketId + "/item")
+                                         .contentType(MediaType.APPLICATION_JSON)
+                                         .accept(MediaType.APPLICATION_JSON)
+                                         .bodyValue(basketItem)
+                                         .exchange();
+
+        // Then
+        response.expectStatus().isCreated()
+                .expectHeader().location("/basketItems/" + basketItem.getId());
+    }
+
+
+
+    @Test
+    public void clearBasket_WhenBasketExists_ThenReturnNoContent() throws Exception {
+        // Given
+        long basketId = 1L;
+
+        // When & Then
+        this.webTestClient.post()
+                          .uri(CONTEXT_PATH + "/" + basketId + "/clear")
+                          .exchange()
+                          .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void cancelBasket_WhenBasketExists_ThenReturnNoContent() throws Exception {
+        // Given
+        long basketId = 1L;
+
+        // When & Then
+        this.webTestClient.post()
+                          .uri(CONTEXT_PATH + "/" + basketId + "/cancel")
+                          .exchange()
+                          .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void getBasketSavings_WhenBasketExists_ThenReturnSavings() throws Exception {
+        // Given
+        long basketId = 1L;
+        var savings = Savings.builder()
+                             .totalPrice(BigDecimal.TEN)
+                             .promotionalPrice(BigDecimal.ONE)
+                             .finalPrice(BigDecimal.valueOf(9))
+                             .build();
+        when(basketService.calculateSavings(basketId)).thenReturn(savings);
+
+        // When & Then
+        this.webTestClient
+                .get()
+                .uri(CONTEXT_PATH + "/" + basketId + "/savings")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Savings.class)
+                .isEqualTo(savings);
+    }
+
+    @Test
+    public void checkoutBasket_WhenBasketExists_ThenReturnBasket() throws Exception {
+        // Given
+        long basketId = 1L;
+        var basket = Basket.builder().id(basketId).status(BasketStatus.CHECKED_OUT).total(BigDecimal.TEN).build();
+        when(basketService.checkout(basketId)).thenReturn(basket);
+
+
+        // When & Then
+        this.webTestClient.post()
+                          .uri(CONTEXT_PATH + "/" + basketId + "/checkout")
+                          .accept(MediaType.APPLICATION_JSON)
+                          .exchange()
+                          .expectStatus().isOk()
+                          .expectBody(Basket.class)
+                          .isEqualTo(basket);
+    }
+
 }
