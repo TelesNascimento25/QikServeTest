@@ -12,7 +12,6 @@ public class QtyBasedPriceOverrideStrategy implements PromotionStrategy {
 
     @Override
     public BigDecimal computeFinalPriceInPence(int quantity, int priceInPence) {
-        // promotion applied only once
         var fullPriceQty = BigDecimal.valueOf(quantity - promotion.getRequiredQty());
         var fullPriceTerm = BigDecimal.valueOf(priceInPence).multiply(fullPriceQty);
         var discountedTerm = BigDecimal.valueOf(promotion.getPrice());

@@ -12,7 +12,6 @@ public class BuyXGetYFreeStrategy implements PromotionStrategy {
 
     @Override
     public BigDecimal computeFinalPriceInPence(int quantity, int priceInPence) {
-        // promotion applied only once
         var diff = quantity - promotion.getRequiredQty();
         return BigDecimal.valueOf(priceInPence).multiply(BigDecimal.valueOf(Integer.max(0, diff)));
     }

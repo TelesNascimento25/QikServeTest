@@ -41,6 +41,7 @@ public class BasketItemService {
                     .applyPromotions(productsById.get(item.getProductId()), item.getQuantity()))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
     @Observed(name = "basketItem.computeTotalPrice")
     @Cacheable("totalPrice")
     public BigDecimal computeTotalPrice(Collection<BasketItem> items) {
@@ -49,11 +50,13 @@ public class BasketItemService {
             .map(item -> PenceUtils.computeTotal(item.getQuantity(), productsById.get(item.getProductId()).getPrice()))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
     @Observed(name = "basketItem.computeTotalSavings")
     @Cacheable("totalSavings")
     public BigDecimal computeTotalSavings(Collection<BasketItem> items) {
         return computeTotalPrice(items).subtract(computePromotionalPrice(items));
     }
+
     @Observed(name = "basketItem.getProductsById")
     @Cacheable("products")
     public Map<String, Product> getProductsById(Collection<BasketItem> items) {
@@ -62,6 +65,7 @@ public class BasketItemService {
                 .collect(Collectors.toSet())).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
     }
+
     @Observed(name = "basketItem.get")
     public Optional<BasketItem> getBasketItem(Long basketItemId) {
         return basketItemRepository.findById(basketItemId);
@@ -70,6 +74,7 @@ public class BasketItemService {
     public BasketItem updateQuantityBasketItem(Long id, int quantity) {
         return this.updateById(id, item -> item.setQuantity(quantity));
     }
+
     @Observed(name = "basketItem.delete")
     public void deleteBasketItem(Long basketItemId) {
         this.getById(basketItemId);
@@ -79,12 +84,14 @@ public class BasketItemService {
     private BasketItem getById(Long id) {
         return this.getById(id, Function.identity());
     }
+
     @Observed(name = "basketItem.getById")
     private <T> T getById(Long id, Function<BasketItem, T> transformer) {
         return basketItemRepository.findById(id)
                 .map(transformer)
                 .orElseThrow(() -> new BasketItemNotFoundException(id));
     }
+
     @Observed(name = "basketItem.update")
     private BasketItem updateById(Long id, Consumer<BasketItem> consumer) {
         return this.getById(id, item -> {

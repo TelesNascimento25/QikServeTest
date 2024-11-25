@@ -43,6 +43,7 @@ public class BasketService {
                 .build();
         return basketRepository.save(basket);
     }
+
     @Observed(name = "basket.addItem")
     public BasketItem addBasketItem(Long basketId, @Valid BasketItem basketItem) {
         if (basketItem.getQuantity() <= 0) {
@@ -63,14 +64,17 @@ public class BasketService {
                 .build());
 
     }
+
     @Observed(name = "basket.cancel")
     public void cancelBasket(Long basketId) {
         this.updateById(basketId, basket -> basket.setStatus(BasketStatus.CANCELLED));
     }
+
     @Observed(name = "basket.clear")
     public void clearBasket(Long basketId) {
         basketRepository.clearBasket(basketId);
     }
+
     @Observed(name = "basket.calculateSavings")
     public Savings calculateSavings(Long basketId) {
         return getBasketById(basketId, basket -> {
@@ -86,6 +90,7 @@ public class BasketService {
                     .build();
         });
     }
+
     @Observed(name = "basket.checkout")
     public Basket checkout(Long basketId) {
         this.updateById(basketId, basket -> basket.setStatus(BasketStatus.CHECKED_OUT));
